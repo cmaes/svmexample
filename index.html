@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<script>
+  MathJax.Hub.Config({
+                      tex2jax: {inlineMath: [['$', '$'], ['\\(','\\)']]},
+                      TeX: { equationNumbers: {autoNumber: "AMS"} },
+                      "HTML-CSS": { showMathMenu: false,
+                                    scale: 90 }
+
+                     });
+</script>
+<style>
+rect {
+  fill: none;
+  pointer-events: all;
+}
+
+
+.typea {
+  fill: red;
+  color: red;
+}
+
+.typeb {
+  fill: green;
+  color: green;
+}
+
+.misclassified {
+ stroke: black;
+ stroke-width: 2;
+}
+
+
+</style>
+<body>
+  <ul id="nav">
+    <li class="current"><a href="#intro">Intro</a></li>
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#model">Model</a></li>
+    <li><a href="#implementation">Implementation</a></li>
+    <li><a href="#demo">Live Demo</a></li>
+  </ul>
+  <div id="container">
+    <div class="section" id="intro">
+      <h1>Support Vector Machines</h1>
+        <subtitle>with quadratic programming and Gurobi</subtitle>
+    </div>
+
+    <div class="section" id="problem">
+      <h2><a href="#problem" name="problem">Problem Description</a></h2>
+      Problem description goes here
+    </div>
+    <div class="section" id="model">
+      <h2><a href="#model" name="model">Mathematical Model</a></h2>
+
+      <p>Model description goes here.</p>
+      <p> Suppose we are given training data $x_i$, $i=1,...,N$ and $y_i$, $i=1,...,M$, and
+          we wish to compute a linear classifier $f(x) = a^T x - \beta$ and
+       \[
+         f(x_i) > 0, i=1, \ldots, N \quad \text{and} \quad
+          f(y_i) < 0, \quad i=1, \ldots, M
+       \]
+
+      <p>Then the following model can be solved to classify points
+      \[
+      \begin{array}{ll}
+      \text{minimize} & \| a \|_2^2 + \gamma (e^T u + e^T v) \\
+      \text{subject to} & a^T x_i - \beta \ge 1 - u_i, \quad i=1, \ldots, N \\
+                        & a^T y_i - \beta \le - (1 - v_i), \quad i=1, \ldots, M \\
+                        & u \ge 0, v \ge 0, a\ \text{free}, \beta\ \text{free}
+      \end{array}
+      \]
+      </p>
+    </div>
+    <div class="section" id="implementation">
+      <h2><a href="#implementation" name="implementation">Implementation</a></h2>
+      <p>Below is the full implementation of the model (and the associated data) in
+        Gurobi's Python interface:
+      </p>
+      <pre>
+
+      </pre>
+    </div>
+    <div class="section" id="demo">
+      <h2><a href="#demo" name="demo">Live Demo</a></h2>
+      <div id="demoarea">
+      </div>
+      <button onclick="compute()">Compute Classification</button>
+      <button onclick="change()">Change Point Type <span id="point_color" class="typea">&#9679;</span></button>
+    </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script>
+
+var width = 960,
+    height = 500;
+
+var svg = d3.select("#demoarea").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .on("mousedown", mousedown);
+
+svg.append("rect")
+    .attr("width", width)
+    .attr("height", height);
+
+var points = [];
+var type = 1;
+
+function mousedown() {
+  var point = d3.mouse(this),
+      node = {x: point[0], y: point[1], type: type},
+      n = points.push(node);
+
+  restart();
+}
+
+
+function restart() {
+   svg.selectAll("circle")
+      .data(points)
+      .enter().append("svg:circle")
+      .attr("cx", function (d) { return d.x; })
+      .attr("cy", function (d) { return d.y; })
+      .attr("r", 4.5)
+      .attr("class", function (d) {
+                        var type;
+                        if (d.type === 1) {
+                           type = "typea";
+                        } else {
+                           type = "typeb";
+                        }
+                        return d3.select(this).attr("class") + " " + type;
+                    });
+}
+
+function change () {
+  type = type * -1;
+  d3.select("#point_color").attr("class", function(d) {
+                                           var cls_str;
+                                           if (type === 1) {
+                                             cls_str = "typea";
+                                           } else {
+                                             cls_str = "typeb";
+                                           }
+                                           return cls_str;
+                                          });
+}
+
+function compute() {
+  var x = [];
+  var y = [];
+  for (var i = 0; i < points.length; i++) {
+     if (points[i].type === 1) {
+        x.push([points[i].x, points[i].y]);
+     } else {
+        y.push([points[i].x, points[i].y]);
+     }
+  }
+  console.log('x', x);
+  console.log('y', y);
+
+  d3.json('/resource')
+    .header('Content-Type', 'application/json')
+    .post(JSON.stringify({'x': x,
+                          'y': y,
+                          'gamma': 0.1 }), serverResponse);
+}
+
+function serverResponse(error, data) {
+   console.log('serverResponse');
+   console.log('data', data);
+   if (!error) {
+      if ('a' in data && 'beta' in data) {
+        var a = data['a'];
+        var beta = data['beta'];
+        var slope = -a[0]/a[1];
+        var intercept = beta/a[1];
+
+        svg.selectAll("line")
+           .remove();
+
+        svg.append("line")
+           .attr("x1", 0)
+           .attr("y1", intercept)
+           .attr("x2", width)
+           .attr("y2", intercept + width*slope)
+           .attr("stroke", "black")
+           .attr("stroke-width", 1);
+
+       svg.selectAll("circle")
+          .attr("class", function (d) {
+              var x = d.x;
+              var y = d.y;
+              var t = d.type;
+              var classstr = "";
+              var curr_classstr = d3.select(this).attr("class");
+              var out = a[0]*x + a[1]*y - beta;
+              var i;
+              var class_arr = curr_classstr.split(" ");
+              if (out < 0 && t === 1 ) {
+                 classstr = "misclassified";
+              } else if (out > 0 && t === -1) {
+                 classstr = "misclassified";
+              }
+
+
+              for (i = 0; i < class_arr.length; i++) {
+                 if (class_arr[i] === "misclassified") {
+                   class_arr.splice(i, 1);
+                 }
+              }
+
+              return class_arr.join(" ") + " " + classstr;
+           });
+
+      }
+   }
+}
+
+</script>
