@@ -57,10 +57,10 @@ rect {
       <h2><a href="#model" name="model">Mathematical Model</a></h2>
 
       <p>Model description goes here.</p>
-      <p> Suppose we are given training data $x_i$, $i=1,...,N$ and $y_i$, $i=1,...,M$, and
+      <p> Suppose we are given training data $\{x_i\}$, $i=1,...,N$ and $\{y_i\}$, $i=1,...,M$, and
           we wish to compute a linear classifier $f(x) = a^T x - \beta$ and
        \[
-         f(x_i) > 0, i=1, \ldots, N \quad \text{and} \quad
+         f(x_i) > 0, \quad i=1, \ldots, N \quad \text{and} \quad
           f(y_i) < 0, \quad i=1, \ldots, M
        \]
 
@@ -81,7 +81,35 @@ rect {
         Gurobi's Python interface:
       </p>
       <pre>
+    m = Model()
 
+    a = [ m.addVar(lb=-GRB.INFINITY, ub=GRB.INFINITY, name="a0"),
+          m.addVar(lb=-GRB.INFINITY, ub=GRB.INFINITY, name="a1") ]
+    beta = m.addVar(lb=-GRB.INFINITY, ub=GRB.INFINITY, name="beta")
+
+    u = []
+    N = len(x)
+    for i in xrange(N):
+        u.append(m.addVar(name=("u%d" % i)))
+
+    v = []
+    M = len(y)
+    for i in xrange(M):
+        v.append(m.addVar(name=("v%d" % i)))
+
+    m.update()
+
+    m.setObjective(a[0]*a[0] + a[1]*a[1] + gamma*(quicksum(u) + quicksum(v)))
+
+    for i in xrange(N):
+        xi = x[i]
+        m.addConstr(a[0]*xi[0] + a[1]*xi[1] - beta >= 1 - u[i], name=("x%d" % i))
+
+    for i in xrange(M):
+        yi = y[i]
+        m.addConstr(a[0]*yi[0] + a[1]*yi[1] - beta <= -(1 - v[i]), name=("y%d" % i))
+
+    m.optimize()
       </pre>
     </div>
     <div class="section" id="demo">
