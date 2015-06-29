@@ -12,11 +12,12 @@
                      });
 </script>
 <style>
+  /*
 rect {
   fill: none;
   pointer-events: all;
 }
-
+*/
 
 .typea {
   fill: red;
@@ -123,18 +124,18 @@ rect {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
 <script>
 
-var width = 960,
+var width = 600,
     height = 500;
 
 var svg = d3.select("#demoarea").append("svg")
     .attr("width", width)
     .attr("height", height)
     .on("mousedown", mousedown);
-
+/* What does this part do?
 svg.append("rect")
     .attr("width", width)
     .attr("height", height);
-
+*/
 var points = [];
 var type = 1;
 
@@ -207,6 +208,15 @@ function serverResponse(error, data) {
         var beta = data['beta'];
         var slope = -a[0]/a[1];
         var intercept = beta/a[1];
+        var aNorm = Math.sqrt(a[0]*a[0] + a[1]*a[1]);
+        // cos = (y2 - y1)/(sqrt((x2-x1)^2 + (y2 -y1)^2))
+        var angleRad = (width*slope)/Math.sqrt(width*width + (width*slope)*(width*slope));
+        var angle = 180 - Math.acos(angleRad)*180/Math.PI;
+        
+        console.log('slope', slope);
+        console.log('intercept', intercept);
+        console.log('angle', angle);
+        console.log('angleRad', angleRad*180/Math.PI);
 
         svg.selectAll("line")
            .remove();
@@ -218,6 +228,41 @@ function serverResponse(error, data) {
            .attr("y2", intercept + width*slope)
            .attr("stroke", "black")
            .attr("stroke-width", 1);
+
+        svg.selectAll("rect")
+           .remove();
+
+        // Add the margin
+        var translation = 1/(Math.sin(angleRad)*aNorm);
+        svg.append("rect")
+           .attr("x", 0)
+           .attr("y", intercept)
+           .attr("height", 10000)
+           .attr("width", 2/aNorm)
+           .style("fill", "gray")
+           .style("opacity", 0.5)
+           .attr("stroke", "black")
+           .attr("transform", "translate(" +(width + translation)+ "," +(slope*width)+ ") rotate(" +angle+ "," +0+ "," +intercept+ ")" )
+
+        console.log('translation', Math.sin(angleRad)*aNorm);
+        // Color the halfplanes (how to check if it is green or red?)
+        svg.append("rect")
+                   .attr("x", 0)
+                   .attr("y", intercept)
+                   .attr("height", 10000)
+                   .attr("width", 10000)
+                   .style("fill", "green")
+                   .style("opacity", 0.3)
+                   .attr("transform", "translate(" +(width)+ "," +(slope*width)+ ") rotate(" +angle+ "," +0+ "," +intercept+ ")" )
+
+        svg.append("rect")
+                   .attr("x", 0)
+                   .attr("y", intercept)
+                   .attr("height", 10000)
+                   .attr("width", 10000)
+                   .style("fill", "red")
+                   .style("opacity", 0.3)
+                   .attr("transform", "translate(" +(0*width)+ "," +(0*slope*width)+ ") rotate(" +(angle + 180)+ "," +0+ "," +intercept+ ")" )
 
        svg.selectAll("circle")
           .attr("class", function (d) {
