@@ -12,12 +12,6 @@
                      });
 </script>
 <style>
-  /*
-rect {
-  fill: none;
-  pointer-events: all;
-}
-*/
 
 .typea {
   fill: red;
@@ -131,11 +125,7 @@ var svg = d3.select("#demoarea").append("svg")
     .attr("width", width)
     .attr("height", height)
     .on("mousedown", mousedown);
-/* What does this part do?
-svg.append("rect")
-    .attr("width", width)
-    .attr("height", height);
-*/
+
 var points = [];
 var type = 1;
 
@@ -232,44 +222,83 @@ function serverResponse(error, data) {
         svg.selectAll("rect")
            .remove();
 
-        // Color the halfplanes (how to check if it is green or red?)
+        // Color the halfplanes
+        var delta = .1
         svg.append("rect")
                    .attr("x", 0)
                    .attr("y", intercept)
-                   .attr("height", 10000)
-                   .attr("width", 10000)
-                   .style("fill", "green")
+                   .attr("height", 100000)
+                   .attr("width", 100000)
+                   .style("fill", function() {
+                                    var point = [0, intercept + delta];
+                                    console.log('point', point)
+                                    var dotProd = a[0]*point[0] + a[1]*point[1] - beta;
+                                    if (dotProd > 0) {
+                                      return "red";                
+                                    }
+                                    else {
+                                      return "green";
+                                    }
+                                  })
                    .style("opacity", 0.3)
-                   .attr("transform", "translate(" +(width)+ "," +(slope*width)+ ") rotate(" +angle+ "," +0+ "," +intercept+ ")" )
+                   .attr("transform", "translate(" +(2*width)+ "," +(2*slope*width)+ ") rotate(" +angle+ "," +0+ "," +intercept+ ")" )
         // Add margin
         svg.append("rect")
                    .attr("x", 0)
                    .attr("y", intercept)
-                   .attr("height", 10000)
+                   .attr("height", 100000)
                    .attr("width", 1/aNorm)
-                   .style("fill", "green")
+                   .style("fill", function() {
+                                    var point = [0, intercept + delta];
+                                    var dotProd = a[0]*point[0] + a[1]*point[1] - beta;
+                                    if (dotProd > 0) {
+                                      return "red";                
+                                    }
+                                    else {
+                                      return "green";
+                                    }
+                                  })
                    .style("opacity", 0.3)
                    .attr("stroke", "black")
-                   .attr("transform", "translate(" +(width)+ "," +(slope*width)+ ") rotate(" +angle+ "," +0+ "," +intercept+ ")" )
+                   .attr("transform", "translate(" +(2*width)+ "," +(2*slope*width)+ ") rotate(" +angle+ "," +0+ "," +intercept+ ")" )
 
         svg.append("rect")
                    .attr("x", 0)
                    .attr("y", intercept)
-                   .attr("height", 10000)
-                   .attr("width", 10000)
-                   .style("fill", "red")
+                   .attr("height", 100000)
+                   .attr("width", 100000)
+                   .style("fill", function() {
+                                    var point = [0, intercept - delta];
+                                    console.log('point', point)
+                                    var dotProd = a[0]*point[0] + a[1]*point[1] - beta;
+                                    if (dotProd > 0) {
+                                      return "red";                
+                                    }
+                                    else {
+                                      return "green";
+                                    }
+                                  })
                    .style("opacity", 0.3)
-                   .attr("transform", "translate(" +(0*width)+ "," +(0*slope*width)+ ") rotate(" +(angle + 180)+ "," +0+ "," +intercept+ ")" )
+                   .attr("transform", "translate(" +(-width)+ "," +((-1)*slope*width)+ ") rotate(" +(angle + 180)+ "," +0+ "," +intercept+ ")" )
 
         svg.append("rect")
                    .attr("x", 0)
                    .attr("y", intercept)
-                   .attr("height", 10000)
+                   .attr("height", 100000)
                    .attr("width", 1/aNorm)
-                   .style("fill", "red")
+                   .style("fill", function() {
+                                    var point = [0, intercept - delta];
+                                    var dotProd = a[0]*point[0] + a[1]*point[1] - beta;
+                                    if (dotProd > 0) {
+                                      return "red";                
+                                    }
+                                    else {
+                                      return "green";
+                                    }
+                                  })
                    .style("opacity", 0.3)
                    .attr("stroke", "black")
-                   .attr("transform", "translate(" +(0*width)+ "," +(0*slope*width)+ ") rotate(" +(angle + 180)+ "," +0+ "," +intercept+ ")" )
+                   .attr("transform", "translate(" +(-width)+ "," +((-1)*slope*width)+ ") rotate(" +(angle + 180)+ "," +0+ "," +intercept+ ")" )
        
        svg.selectAll("circle")
           .attr("class", function (d) {
