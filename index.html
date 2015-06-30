@@ -227,24 +227,11 @@ function serverResponse(error, data) {
            .attr("x2", width)
            .attr("y2", intercept + width*slope)
            .attr("stroke", "black")
-           .attr("stroke-width", 1);
+           .attr("stroke-width", 2);
 
         svg.selectAll("rect")
            .remove();
 
-        // Add the margin
-        var translation = 1/(Math.sin(angleRad)*aNorm);
-        svg.append("rect")
-           .attr("x", 0)
-           .attr("y", intercept)
-           .attr("height", 10000)
-           .attr("width", 2/aNorm)
-           .style("fill", "gray")
-           .style("opacity", 0.5)
-           .attr("stroke", "black")
-           .attr("transform", "translate(" +(width + translation)+ "," +(slope*width)+ ") rotate(" +angle+ "," +0+ "," +intercept+ ")" )
-
-        console.log('translation', Math.sin(angleRad)*aNorm);
         // Color the halfplanes (how to check if it is green or red?)
         svg.append("rect")
                    .attr("x", 0)
@@ -253,6 +240,16 @@ function serverResponse(error, data) {
                    .attr("width", 10000)
                    .style("fill", "green")
                    .style("opacity", 0.3)
+                   .attr("transform", "translate(" +(width)+ "," +(slope*width)+ ") rotate(" +angle+ "," +0+ "," +intercept+ ")" )
+        // Add margin
+        svg.append("rect")
+                   .attr("x", 0)
+                   .attr("y", intercept)
+                   .attr("height", 10000)
+                   .attr("width", 1/aNorm)
+                   .style("fill", "green")
+                   .style("opacity", 0.3)
+                   .attr("stroke", "black")
                    .attr("transform", "translate(" +(width)+ "," +(slope*width)+ ") rotate(" +angle+ "," +0+ "," +intercept+ ")" )
 
         svg.append("rect")
@@ -264,6 +261,16 @@ function serverResponse(error, data) {
                    .style("opacity", 0.3)
                    .attr("transform", "translate(" +(0*width)+ "," +(0*slope*width)+ ") rotate(" +(angle + 180)+ "," +0+ "," +intercept+ ")" )
 
+        svg.append("rect")
+                   .attr("x", 0)
+                   .attr("y", intercept)
+                   .attr("height", 10000)
+                   .attr("width", 1/aNorm)
+                   .style("fill", "red")
+                   .style("opacity", 0.3)
+                   .attr("stroke", "black")
+                   .attr("transform", "translate(" +(0*width)+ "," +(0*slope*width)+ ") rotate(" +(angle + 180)+ "," +0+ "," +intercept+ ")" )
+       
        svg.selectAll("circle")
           .attr("class", function (d) {
               var x = d.x;
