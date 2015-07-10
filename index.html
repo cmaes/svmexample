@@ -182,7 +182,7 @@ function compute() {
   console.log('x', x);
   console.log('y', y);
 
-  d3.json('/resource')
+  d3.json('/svmexample')
     .header('Content-Type', 'application/json')
     .post(JSON.stringify({'x': x,
                           'y': y,
