@@ -182,7 +182,7 @@ function compute() {
   console.log('x', x);
   console.log('y', y);
 
-  d3.json('/resource')
+  d3.json('/svmexample')
     .header('Content-Type', 'application/json')
     .post(JSON.stringify({'x': x,
                           'y': y,
@@ -202,7 +202,7 @@ function serverResponse(error, data) {
         // cos = (y2 - y1)/(sqrt((x2-x1)^2 + (y2 -y1)^2))
         var angleRad = (width*slope)/Math.sqrt(width*width + (width*slope)*(width*slope));
         var angle = 180 - Math.acos(angleRad)*180/Math.PI;
-        
+
         console.log('slope', slope);
         console.log('intercept', intercept);
         console.log('angle', angle);
@@ -234,7 +234,7 @@ function serverResponse(error, data) {
                                     console.log('point', point)
                                     var dotProd = a[0]*point[0] + a[1]*point[1] - beta;
                                     if (dotProd > 0) {
-                                      return "red";                
+                                      return "red";
                                     }
                                     else {
                                       return "green";
@@ -252,7 +252,7 @@ function serverResponse(error, data) {
                                     var point = [0, intercept + delta];
                                     var dotProd = a[0]*point[0] + a[1]*point[1] - beta;
                                     if (dotProd > 0) {
-                                      return "red";                
+                                      return "red";
                                     }
                                     else {
                                       return "green";
@@ -272,7 +272,7 @@ function serverResponse(error, data) {
                                     console.log('point', point)
                                     var dotProd = a[0]*point[0] + a[1]*point[1] - beta;
                                     if (dotProd > 0) {
-                                      return "red";                
+                                      return "red";
                                     }
                                     else {
                                       return "green";
@@ -290,7 +290,7 @@ function serverResponse(error, data) {
                                     var point = [0, intercept - delta];
                                     var dotProd = a[0]*point[0] + a[1]*point[1] - beta;
                                     if (dotProd > 0) {
-                                      return "red";                
+                                      return "red";
                                     }
                                     else {
                                       return "green";
@@ -299,7 +299,7 @@ function serverResponse(error, data) {
                    .style("opacity", 0.3)
                    .attr("stroke", "black")
                    .attr("transform", "translate(" +(-width)+ "," +((-1)*slope*width)+ ") rotate(" +(angle + 180)+ "," +0+ "," +intercept+ ")" )
-       
+
        svg.selectAll("circle")
           .attr("class", function (d) {
               var x = d.x;
